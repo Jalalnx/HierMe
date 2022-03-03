@@ -5,13 +5,13 @@ const morgan = require('morgan'); //middewear
 const OrgRouter = require("./Routes/institutes.routes")
 const userRoutes = require("./Routes/user.routes")
 const cloudinary = require('cloudinary');
-const db = require("./models/database");
+const db = require("./models/database");;
 
 // db.sequelize.sync();
-// db.sequelize.sync()
-//     .then(() => {
-//         console.log("All models were synchronized successfully.");
-//     });
+db.sequelize.sync()
+    .then(() => {
+        console.log("All models were synchronized successfully.");
+    });
 const app = express();
 var corsOptions = {
     origin: "http://localhost:8081"
@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
-    res.end(JSON.stringify(req.body, null, 2))
+    // res.end(JSON.stringify(req.body, null, 2))
     next();
 });
 
@@ -39,7 +39,7 @@ app.use(express.json());
 
 //register view engine and the app lisiner
 app.set('view engine', 'ejs');
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
         console.log("Server running on port " + PORT)
     })

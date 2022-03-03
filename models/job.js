@@ -15,6 +15,12 @@ module.exports = (sequelize, Sequelize) => {
         },
         requirements: {
             type: Sequelize.TEXT
+        },
+        status: {
+            type: Sequelize.INTEGER
+        },
+        AprovedByAdmin: {
+            type: Sequelize.BOOLEAN
         }
     });
     return job;

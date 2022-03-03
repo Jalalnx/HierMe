@@ -1,6 +1,6 @@
 const dbConfig = require("../Services/db.config");
 const Sequelize = require("sequelize");
-const UserModel = require("./user.js")
+const UserModel = require("./user")
 const jobModel = require("./job.js");
 const institutesModel = require("./institutes.js")
 const EmploymentApplicationsModel = require("./EmploymentApplications.model.js")
@@ -38,4 +38,4 @@ db.EmploymentApplications.belongsTo(db.EmploymentApplications);
 
 
 
-module.exports = db.user;
+module.exports = db;

@@ -1,6 +1,4 @@
-const User = require("../models/user")
 const jwt = require("jsonwebtoken")
-const config = require('../Services/keyConfig');
 const bcrypt = require('bcrypt');
 const cloudinary = require('cloudinary');
 const mailing = require('nodemailer')
@@ -9,6 +7,9 @@ const webpush = require('web-push');
 const sql = require('mssql')
 const Sequelize = require("sequelize");
 const db = require("../models/database")
+require("dotenv").config();
+
+const oprationMAnger = require('../Services/Opration')
 
 exports.ping = (req, res) => {
         console.log("app paing in port 300");
@@ -18,80 +19,182 @@ exports.ping = (req, res) => {
     }
     //login end point
 exports.login = async(req, res) => {
-    if (err) throw err;
-    var token = jwt.sign({ id: req.phone }, config.secretKey, { expiresIn: 86400 });
-    res.status(200).send({ auth: true, token: token });
 
+    //check if the user if exiting
+    const user = await db.user.findOne({
+        where: {
+            Email: req.body.Email
+        }
+    });
+    if (!user) {
+        res.status(401).json({
+            message: "Auth failed!! either the account does't exist or you entered a wrong account",
+            error: true
+        });
+    }
 
-    // const user = await User.findOne({ email: req.body.email });
-    // if (!user) {
-    //     res.status(401).json("Something went wrong!");
-    // }
-    // const bytes = CryptoJS.AES.decrypt(user.password,
-    //     process.env.SECRET_KEY);
-    // const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
+    const match = bcrypt.compareSync(req.body.password, user.password); // true
+    if (match) {
+        // token = jwt.sign({ "id": user.id, "email": user.email, "first_name": user.first_name }, process.env.SECRET);
+        let jwtSecretKey = "secret";
+        let data = {
+            time: Date(),
+            userId: 12,
+        }
 
-    // if (originalPassword !== req.body.password) {
-    res.status(401).json("Something went wrong!");
-    // con.query("SELECT * FROM users", function(err, result, fields) {
-    //     if (err) throw err;
-    //     console.log(result);
-    // });
+        const token = jwt.sign(data,
+            jwtSecretKey);
+
+        res.status(202).json({
+            message: "acppted",
+            error: false,
+            jwt: token,
+            user: user
+        });
+
+    } else {
+        res.status(401).json({
+            message: "Wrong password",
+            error: true,
+        });
+    }
+
 }
 
 exports.register = async(req, res) => {
 
-        const photo = await req.body.photo;
-        // console.log(photo)
-        // const clImg = await cloudinary.v2.uploader
-        //     .upload(photo, {
-        //         public_id: `user/${req.body.Email}`,
-        //     }).catch((err) => console.warn(err));
-        console.log("mack img upload");
+    const CheckEmail = await db.user.findOne({
+        where: {
+            Email: req.body.Email
+        }
+    });
+    const CheckPhone = await db.user.findOne({
+        where: {
+            phone: req.body.phone
+        }
+    });
+    if (CheckEmail || CheckPhone) {
+        res.status(401).json("Email or phone allrady Exits");
+    } else {
+        const clImg = await cloudinary.v2.uploader
+            .upload(req.body.photo, {
+                public_id: `user/${req.body.Email}`,
+            }).catch((err) => console.warn(err));
+
         ///genrate opt 
         const OTP = Math.floor(Math.random() * (0001 - 11000 + 1) + 9999);
-        // //send email 
-        // const mailOptions = {
-        //     from: 'Hier me Team',
-        //     to: request.body.email,
-        //     subject: 'OPT code ',
-        //     text: "You optp code is:" + OTP
-        // };
-
-        ////Encrpt the password
-        const hashedPassword = bcrypt.hashSync(req.body.password, 8);
-        console.log("mack to password");
-        try {
-            ///create the user
-            db.user.create({
-                    name: request.body.name,
-                    phone: req.body.phone,
-                    Email: request.body.Email,
-                    address: request.body.address,
-                    gender: request.body.gender,
-
-                    password: hashedPassword,
-                    OPT: OTP,
-                    Email_Verfit: 1
-                })
-                .then((user) => {
-                    if (user) { res.status(201).send(user); } else {
-                        res.status(400).send("user dont crated");
-                    }
-                })
-
-
-        } catch (err) {
-            console.log(err)
-            return res.status(500).json(err)
+        ///create the user
+        const newuser = await db.user.create({
+            name: req.body.name,
+            phone: req.body.phone,
+            Email: req.body.Email,
+            adress: req.body.adress,
+            gender: req.body.gender,
+            password: bcrypt.hashSync(req.body.password, 8),
+            photo: clImg.secure_url,
+            OPT: OTP,
+            Email_Verfit: 1
+        });
+        if (!newuser) {
+            return res.status(401).send('error in creating user')
+        } else {
+            return res.status(201).send({ masseg: "oh", error: false, Newuser: newuser })
 
         }
     }
-    // }
-    // exports.info = async(req, res) => {}
+
+
+}
+exports.getJobs = async(req, res) => {
+
+    const roules = [];
+
+    const jobs = await db.jobs.findAll({
+        where: {
+            status: 0,
+            AprovedByAdmin: 1
+        }
+    });
+
+    // await jobs.forEach(job => {
+
+
+    // });
+    const forEachLoop = _ => {
+        console.log('Start')
+
+        jobs.filter(async job => {
+            roules.push({
+                "id": job.id,
+                "job": job.job,
+                "jobdescription": job.jobdescription,
+                "location": job.location,
+                "salary": job.salary,
+                "requirements": job.requirements,
+                "status": job.status,
+                "AprovedByAdmin": job.AprovedByAdmin,
+                "createdAt": job.createdAt,
+                "updatedAt": job.updatedAt,
+                "instituteId": job.instituteId,
+                "institute": db.institutes.findOne({
+                    where: {
+                        id: job.instituteId
+                    }
+                })
+            })
+        })
+
+        console.log('End')
+    }
+
+    return res.status(201).send({
+        masseg: "All jobs directives",
+        count: jobs.length,
+        error: false,
+        data: roules
+    })
+
+
+
+
+    // res.status(200).send({
+    //     masseg: "All jobs directives",
+    //     count: jobs.length,
+    //     error: false,
+    //     data: roules
+    // })
+
+
+
+
+}
+
+
+exports.apply = async(req, res) => {
+
+        const newuser = await db.user.create({
+            name: req.body.name,
+            phone: req.body.phone,
+            Email: req.body.Email,
+            adress: req.body.adress,
+            gender: req.body.gender,
+            password: bcrypt.hashSync(req.body.password, 8),
+            photo: clImg.secure_url,
+            OPT: OTP,
+            Email_Verfit: 1
+        });
+        if (!newuser) {
+            return res.status(401).send('error in creating user')
+        } else {
+            return res.status(201).send({ masseg: "oh", error: false, Newuser: newuser })
+
+        }
+    }
     // exports.UpdateInfo = async(req, res) => {}
-    // exports.getJobs = async(req, res) => {}
-    // exports.apply = async(req, res) => {}
-    // exports.UpdateAppliction = async(req, res) => {}
-    // exports.getMyapplicatinos = async(req, res) => {}
-    // exports.Search = async(req, res) => {}
+
+
+// exports.UpdateAppliction = async(req, res) => {}
+// exports.getMyapplicatinos = async(req, res) => {}
+// exports.Search = async(req, res) => {} res) => {}
+// exports.Search = async(req, res) => {} res) => {}
+// exports.Search = async(req, res) => {}
