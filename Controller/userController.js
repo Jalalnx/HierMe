@@ -85,13 +85,15 @@ exports.register = async(req, res) => {
         const OTP = Math.floor(Math.random() * (0001 - 11000 + 1) + 9999);
         ///create the user
         const newuser = await db.user.create({
-            name: req.body.name,
+            f_name: req.body.f_name,
+            l_name: req.body.l_name,
             phone: req.body.phone,
             Email: req.body.Email,
             adress: req.body.adress,
             gender: req.body.gender,
             password: bcrypt.hashSync(req.body.password, 8),
             photo: clImg.secure_url,
+            profession: req.profession,
             OPT: OTP,
             Email_Verfit: 1
         });
@@ -106,46 +108,34 @@ exports.register = async(req, res) => {
 
 }
 exports.getJobs = async(req, res) => {
-
     const roules = [];
-
     const jobs = await db.jobs.findAll({
         where: {
             status: 0,
             AprovedByAdmin: 1
         }
     });
-
-    // await jobs.forEach(job => {
-
-
-    // });
-    const forEachLoop = _ => {
-        console.log('Start')
-
-        jobs.filter(async job => {
-            roules.push({
-                "id": job.id,
-                "job": job.job,
-                "jobdescription": job.jobdescription,
-                "location": job.location,
-                "salary": job.salary,
-                "requirements": job.requirements,
-                "status": job.status,
-                "AprovedByAdmin": job.AprovedByAdmin,
-                "createdAt": job.createdAt,
-                "updatedAt": job.updatedAt,
-                "instituteId": job.instituteId,
-                "institute": db.institutes.findOne({
-                    where: {
-                        id: job.instituteId
-                    }
-                })
-            })
+    for await (const job of jobs) {
+        const institute = await db.institutes.findOne({
+            where: {
+                id: job.instituteId
+            }
         })
-
-        console.log('End')
+        roules.push({
+            "id": job.id,
+            "job": job.job,
+            "jobdescription": job.jobdescription,
+            "location": job.location,
+            "salary": job.salary,
+            "requirements": job.requirements,
+            "status": job.status,
+            "createdAt": job.createdAt,
+            "updatedAt": job.updatedAt,
+            "instituteId": job.instituteId,
+            "institute": institute
+        })
     }
+
 
     return res.status(201).send({
         masseg: "All jobs directives",
@@ -156,13 +146,6 @@ exports.getJobs = async(req, res) => {
 
 
 
-
-    // res.status(200).send({
-    //     masseg: "All jobs directives",
-    //     count: jobs.length,
-    //     error: false,
-    //     data: roules
-    // })
 
 
 
