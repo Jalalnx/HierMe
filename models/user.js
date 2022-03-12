@@ -26,7 +26,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         profession: {
-            type: sequelize.STRING
+            type: Sequelize.STRING
         },
         OPT: {
             type: Sequelize.INTEGER

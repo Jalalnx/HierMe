@@ -9,10 +9,8 @@ const Sequelize = require("sequelize");
 const db = require("../models/database")
 require("dotenv").config();
 
-const oprationMAnger = require('../Services/Opration')
-
 exports.ping = (req, res) => {
-        console.log("app paing in port 300");
+        console.log("app ping in port 300");
         return res.status(200).json({ 'status': 'done', 'message': 'Server in up do work' });
 
 
@@ -91,8 +89,8 @@ exports.register = async(req, res) => {
             Email: req.body.Email,
             adress: req.body.adress,
             gender: req.body.gender,
-            password: bcrypt.hashSync(req.body.password, 8),
             photo: clImg.secure_url,
+            password: bcrypt.hashSync(req.body.password, 8),
             profession: req.profession,
             OPT: OTP,
             Email_Verfit: 1
@@ -143,13 +141,6 @@ exports.getJobs = async(req, res) => {
         error: false,
         data: roules
     })
-
-
-
-
-
-
-
 }
 
 
