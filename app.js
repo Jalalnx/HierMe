@@ -19,10 +19,11 @@ async function karaoke() {
 db.sequelize.sync()
     .then(() => {
         neon();
+        karaoke()
     });
 const app = express();
 var corsOptions = {
-    origin: "http://localhost:8081"
+    origin: "http://192.168.137.1"
 };
 app.use(cors(corsOptions));
 app.use(function(req, res, next) {
@@ -39,17 +40,24 @@ cloudinary.config({
     api_secret: 'P0k93MRBV2CE4yX74d3zQmCBlYk'
 });
 
+
+
+app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({
-    extended: true
-}));
-// parse requests of content-type - application/json
+        limit: '50mb',
+        extended: false,
+    }))
+    // app.use(bodyParser.urlencoded({
+    //     extended: true
+    // }));
+    // parse requests of content-type - application/json
 app.use(express.json());
 
 
 
 //register view engine and the app lisiner
 app.set('view engine', 'ejs');
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 8000;
 
 async function init() { const tt = chalkAnimation.rainbow("Server running on port " + PORT) }
 app.listen(PORT, () => {
@@ -59,6 +67,7 @@ app.listen(PORT, () => {
 app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
+
 
 
 app.use("/institutes", OrgRouter)

@@ -7,7 +7,13 @@ const webpush = require('web-push');
 const sql = require('mssql')
 const Sequelize = require("sequelize");
 const db = require("../models/database")
+const fs = require("fs");
+const upload = require('../Services/uploadMiddleware');
+const path = require('path');
+const Resize = require('../Services/Resize');
+
 require("dotenv").config();
+
 
 exports.ping = (req, res) => {
         console.log("app ping in port 300");
@@ -29,58 +35,56 @@ exports.login = async(req, res) => {
             message: "Auth failed!! either the account does't exist or you entered a wrong account",
             error: true
         });
-    }
-
-    const match = bcrypt.compareSync(req.body.password, user.password); // true
-    if (match) {
-        // token = jwt.sign({ "id": user.id, "email": user.email, "first_name": user.first_name }, process.env.SECRET);
-        let jwtSecretKey = "secret";
-        let data = {
-            time: Date(),
-            userId: 12,
-        }
-
-        const token = jwt.sign(data,
-            jwtSecretKey);
-
-        res.status(202).json({
-            message: "acppted",
-            error: false,
-            jwt: token,
-            user: user
-        });
-
     } else {
-        res.status(401).json({
-            message: "Wrong password",
-            error: true,
-        });
+        const match = bcrypt.compareSync(req.body.password, user.password); // true
+        if (match) {
+            // token = jwt.sign({ "id": user.id, "email": user.email, "first_name": user.first_name }, process.env.SECRET);
+            let jwtSecretKey = "secret";
+            let data = {
+                time: Date(),
+                userId: 12,
+            }
+
+            const token = jwt.sign(data,
+                jwtSecretKey);
+
+            res.status(202).json({
+                message: "acppted",
+                error: false,
+                jwt: token,
+                user: user
+            });
+
+        } else {
+            res.status(401).json({
+                message: "Wrong password",
+                error: true,
+            });
+        }
     }
 
 }
 
 exports.register = async(req, res) => {
 
-    const CheckEmail = await db.user.findOne({
+    const Check = await db.user.findOne({
         where: {
-            Email: req.body.Email
-        }
-    });
-    const CheckPhone = await db.user.findOne({
-        where: {
+            Email: req.body.Email,
             phone: req.body.phone
         }
     });
-    if (CheckEmail || CheckPhone) {
-        res.status(401).json("Email or phone allrady Exits");
+
+    if (Check) {
+        res.status(201).json("Email or phone allrady Exits");
     } else {
         const clImg = await cloudinary.v2.uploader
             .upload(req.body.photo, {
                 public_id: `user/${req.body.Email}`,
             }).catch((err) => console.warn(err));
 
+
         ///genrate opt 
-        const OTP = Math.floor(Math.random() * (0001 - 11000 + 1) + 9999);
+        const OTP = Math.floor(Math.random() * (00001 - 11000 + 1) + 9999);
         ///create the user
         const newuser = await db.user.create({
             f_name: req.body.f_name,
@@ -91,12 +95,13 @@ exports.register = async(req, res) => {
             gender: req.body.gender,
             photo: clImg.secure_url,
             password: bcrypt.hashSync(req.body.password, 8),
-            profession: req.profession,
+            profession: req.body.profession,
+            education_level: req.body.education_level,
             OPT: OTP,
-            Email_Verfit: 1
+            Email_Verfit: 0
         });
         if (!newuser) {
-            return res.status(401).send('error in creating user')
+            return res.status(205).send('error in creating user')
         } else {
             return res.status(201).send({ masseg: "oh", error: false, Newuser: newuser })
 
@@ -112,7 +117,10 @@ exports.getJobs = async(req, res) => {
             status: 0,
             AprovedByAdmin: 1
         }
+
     });
+
+
     for await (const job of jobs) {
         const institute = await db.institutes.findOne({
             where: {

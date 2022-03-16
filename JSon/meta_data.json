@@ -1,0 +1,63 @@
+{
+    "Country": {
+        "1": "sudan",
+        "2": "Bahre",
+        "3": "Karhtom"
+    },
+    "Career Level": {
+        "1": "student/internship",
+        "2": "entry level",
+        "3": "experienced(non-manager)",
+        "4": "manager(supervisor)"
+    },
+    "Job Role": {
+        "1": "Engineering/Architecture",
+        "2": "Business/Management",
+        "3": "Marketing / PR ",
+        "4": "Quality Assurance/Quality Control",
+        "5": "Sales",
+        "6": "Science",
+        "7": "Safety/Security",
+        "8": "Purchasing/Procurement ",
+        "9": "Information Technology/Software",
+        "10": "Other",
+        "11": "Manufacturing/Production",
+        "12": "Accounting/Finance/Audit",
+        "13": "Administration/Secretarial/Office Support",
+        "14": "Arts/Design",
+        "15": "Customer service",
+        "16": "Installation/Maintenance/Vocational",
+        "17": "Medical/Health",
+        "18": "Human Resources ",
+        "19": "Legal/Law",
+        "20": "Logistics/Supply Chain"
+    },
+    "Industry": {
+        "1": "Oil Gas/Minning",
+        "2": "Retail/Wholesale ",
+        "3": "Telecommunications/ICT",
+        "4": "Agriculture/Animal Production",
+        "5": "Automotive/machinery equipment",
+        "6": "Banking/Financial Services/Accounting",
+        "7": "Engineering/Architecture",
+        "8": "Import  Export/trade",
+        "9": "Information Technology/Software/technology",
+        "10": "Insurance ",
+        "11": "Internet/E-commerce ",
+        "12": "Manufacturing/Industrial",
+        "13": "Marketing/Advertising/PR",
+        "14": "Food/Beverages",
+        "15": "Healthcare/Medical/pharmaceutical",
+        "16": "Human Resources / Recruiting "
+    },
+    "Job Status": {
+        "1": "Full time",
+        "2": "Part time",
+        "3": "remolty"
+    },
+    "Job Type": {
+        "1": "Employee",
+        "2": "Cotract/Project",
+        "3": "Comission"
+    }
+}

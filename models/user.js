@@ -21,11 +21,13 @@ module.exports = (sequelize, Sequelize) => {
         photo: {
             type: Sequelize.STRING
         },
-
-        password: {
+        education_level: {
             type: Sequelize.STRING
         },
         profession: {
+            type: Sequelize.STRING
+        },
+        password: {
             type: Sequelize.STRING
         },
         OPT: {

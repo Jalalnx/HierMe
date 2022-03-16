@@ -27,6 +27,9 @@ module.exports = (sequelize, Sequelize) => {
         },
         photo: {
             type: Sequelize.STRING
+        },
+        password: {
+            type: Sequelize.STRING
         }
     });
     return institutes;

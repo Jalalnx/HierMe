@@ -29,12 +29,14 @@ db.EmploymentApplications = EmploymentApplicationsModel(sequelize, Sequelize);
 db.attachments = attachmentModel(sequelize, Sequelize);
 // https: //www.codementor.io/@mirko0/how-to-use-sequelize-with-node-and-express-i24l67cuz
 
-// db.EmploymentApplications.belongsToMany(db.institutes, { through: db.institutes, unique: false })
+
 
 db.jobs.belongsTo(db.institutes);
 db.attachments.belongsTo(db.EmploymentApplications);
-db.EmploymentApplications.belongsTo(db.EmploymentApplications);
-db.EmploymentApplications.belongsTo(db.EmploymentApplications);
+db.EmploymentApplications.belongsTo(db.user);
+db.EmploymentApplications.belongsTo(db.jobs);
+
+// db.EmploymentApplications.belongsToMany(db.user, { through: db.jobs, unique: false });
 
 
 
