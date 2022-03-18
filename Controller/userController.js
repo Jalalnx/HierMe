@@ -11,6 +11,7 @@ const fs = require("fs");
 const upload = require('../Services/uploadMiddleware');
 const path = require('path');
 const Resize = require('../Services/Resize');
+const job = require("../models/job");
 
 require("dotenv").config();
 
@@ -111,43 +112,24 @@ exports.register = async(req, res) => {
 
 }
 exports.getJobs = async(req, res) => {
-    const roules = [];
+
     const jobs = await db.jobs.findAll({
         where: {
             status: 0,
             AprovedByAdmin: 1
-        }
+        },
+        include: [
+            db.institutes
+        ],
 
-    });
-
-
-    for await (const job of jobs) {
-        const institute = await db.institutes.findOne({
-            where: {
-                id: job.instituteId
-            }
-        })
-        roules.push({
-            "id": job.id,
-            "job": job.job,
-            "jobdescription": job.jobdescription,
-            "location": job.location,
-            "salary": job.salary,
-            "requirements": job.requirements,
-            "status": job.status,
-            "createdAt": job.createdAt,
-            "updatedAt": job.updatedAt,
-            "instituteId": job.instituteId,
-            "institute": institute
-        })
-    }
+    })
 
 
     return res.status(201).send({
         masseg: "All jobs directives",
         count: jobs.length,
         error: false,
-        data: roules
+        data: jobs
     })
 }
 

@@ -19,13 +19,17 @@ module.exports = (sequelize, Sequelize) => {
         fax: {
             type: Sequelize.STRING
         },
+
+        phone: {
+            type: Sequelize.STRING
+        },
         logo: {
             type: Sequelize.STRING
         },
-        phone: {
-            type: Sequelize.INTEGER
-        },
         photo: {
+            type: Sequelize.STRING
+        },
+        websiteUrl: {
             type: Sequelize.STRING
         },
         password: {
