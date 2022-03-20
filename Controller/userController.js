@@ -4,7 +4,6 @@ const cloudinary = require('cloudinary');
 const mailing = require('nodemailer')
 const emailProvider = require('../Services/emailConfing')
 const webpush = require('web-push');
-const sql = require('mssql')
 const Sequelize = require("sequelize");
 const db = require("../models/database")
 const fs = require("fs");
@@ -14,7 +13,6 @@ const Resize = require('../Services/Resize');
 const job = require("../models/job");
 
 require("dotenv").config();
-
 
 exports.ping = (req, res) => {
         console.log("app ping in port 300");
@@ -111,6 +109,8 @@ exports.register = async(req, res) => {
 
 
 }
+
+
 exports.getJobs = async(req, res) => {
 
     const jobs = await db.jobs.findAll({
@@ -124,7 +124,6 @@ exports.getJobs = async(req, res) => {
 
     })
 
-
     return res.status(201).send({
         masseg: "All jobs directives",
         count: jobs.length,
@@ -134,27 +133,7 @@ exports.getJobs = async(req, res) => {
 }
 
 
-exports.apply = async(req, res) => {
-
-        const newuser = await db.user.create({
-            name: req.body.name,
-            phone: req.body.phone,
-            Email: req.body.Email,
-            adress: req.body.adress,
-            gender: req.body.gender,
-            password: bcrypt.hashSync(req.body.password, 8),
-            photo: clImg.secure_url,
-            OPT: OTP,
-            Email_Verfit: 1
-        });
-        if (!newuser) {
-            return res.status(401).send('error in creating user')
-        } else {
-            return res.status(201).send({ masseg: "oh", error: false, Newuser: newuser })
-
-        }
-    }
-    // exports.UpdateInfo = async(req, res) => {}
+// exports.UpdateInfo = async(req, res) => {}
 
 
 // exports.UpdateAppliction = async(req, res) => {}

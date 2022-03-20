@@ -6,6 +6,8 @@ const institutesModel = require("./institutes.js")
 const EmploymentApplicationsModel = require("./EmploymentApplications.model.js")
 const attachmentModel = require("./attachments.model.js")
 
+
+// https://sequelize.org/master/manual/assocs.html
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     host: dbConfig.HOST,
     port: 3307,
