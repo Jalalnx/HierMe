@@ -33,11 +33,14 @@ db.attachments = attachmentModel(sequelize, Sequelize);
 
 
 db.institutes.hasMany(db.jobs, { foreignKey: 'instituteId' });
-
 db.jobs.belongsTo(db.institutes);
 
+db.user.hasMany(db.attachments, { foreignKey: 'userId' });
+db.attachments.belongsTo(db.user);
 
-db.attachments.belongsTo(db.EmploymentApplications);
+
+
+db.user.hasMany(db.EmploymentApplications, { foreignKey: 'userId' });
 db.EmploymentApplications.belongsTo(db.user);
 db.EmploymentApplications.belongsTo(db.jobs);
 

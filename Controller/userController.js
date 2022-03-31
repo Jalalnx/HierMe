@@ -11,18 +11,35 @@ const upload = require('../Services/uploadMiddleware');
 const path = require('path');
 const Resize = require('../Services/Resize');
 const job = require("../models/job");
-
 require("dotenv").config();
+const axios = require('axios');
+const config = process.Configuration;
 
-exports.ping = (req, res) => {
+const slackToken = 'xoxb-3225785419078-3286188532210-jS82ravJ0axw9vLwhnmCUkzI'; //Bot User OAuth Token
+const url = 'https://slack.com/api/chat.postMessage';
+
+
+exports.ping = async(req, res) => {
         console.log("app ping in port 300");
-        return res.status(200).json({ 'status': 'done', 'message': 'Server in up do work' });
+
+        const res2 = await axios.post(url, {
+            channel: 'hireme-support',
+            text: 'Hire me suport is up to work',
+            username: 'Test App',
+            icon_emoji: ':male-technologist:'
+        }, { headers: { authorization: `Bearer ${slackToken}` } });
+
+        console.log('Done', res.data);
+        return res.status(200).json({
+            'status': 'done',
+            'message': 'Server in up do work',
+            "res": res2.data
+        });
 
 
     }
     //login end point
 exports.login = async(req, res) => {
-
     //check if the user if exiting
     const user = await db.user.findOne({
         where: {
@@ -37,15 +54,18 @@ exports.login = async(req, res) => {
     } else {
         const match = bcrypt.compareSync(req.body.password, user.password); // true
         if (match) {
-            // token = jwt.sign({ "id": user.id, "email": user.email, "first_name": user.first_name }, process.env.SECRET);
-            let jwtSecretKey = "secret";
-            let data = {
-                time: Date(),
-                userId: 12,
-            }
-
-            const token = jwt.sign(data,
-                jwtSecretKey);
+            token = jwt.sign({ "id": user.id, "email": user.email }, config.JWT_SECRET_KEY);
+            // let jwtSecretKey = "secret";
+            // let data = {
+            //     time: Date(),
+            //     userId: 12,
+            // }
+            const res2 = await axios.post(url, {
+                channel: 'hireme-support',
+                text: `${user.profession} المهنه  ${user.f_name}تسجيل دخول جديد `,
+                username: 'Daroat Jalal',
+                icon_emoji: ':male-technologist:'
+            }, { headers: { authorization: `Bearer ${slackToken}` } });
 
             res.status(202).json({
                 message: "acppted",
@@ -79,7 +99,11 @@ exports.register = async(req, res) => {
         const clImg = await cloudinary.v2.uploader
             .upload(req.body.photo, {
                 public_id: `user/${req.body.Email}`,
-            }).catch((err) => console.warn(err));
+            }).catch((err) => 
+            {
+                console.warn(err);
+                return res.status(500).send('تأكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه')
+            });
 
 
         ///genrate opt 

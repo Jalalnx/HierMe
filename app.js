@@ -4,6 +4,7 @@ const cors = require("cors");
 const morgan = require('morgan'); //middewear
 const OrgRouter = require("./Routes/institutes.routes")
 const userRoutes = require("./Routes/user.routes")
+const JobRoutes = require("./Routes/JobRoutes.routes")
 const cloudinary = require('cloudinary');
 const db = require("./models/database");
 const chalkAnimation = require('chalk-animation');
@@ -72,3 +73,4 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/institutes", OrgRouter)
 app.use("/user", userRoutes);
+app.use("/job", JobRoutes);

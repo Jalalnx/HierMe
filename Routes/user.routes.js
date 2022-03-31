@@ -10,6 +10,7 @@ router.post("/login", userController.login)
 router.post("/register", userController.register)
 router.get("/Jobs", userController.getJobs)
 router.post("/file/upload", controller.upload);
+router.post("/test/upload", controller.upload);
 // router.get("/files", controller.getListFiles);
 // router.get("/files/:name", controller.download);
 // router.put("/UpdateInfo", auth.isAuthorized, userController.UpdateInfo)

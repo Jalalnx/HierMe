@@ -3,6 +3,9 @@ module.exports = (sequelize, Sequelize) => {
 
         path: {
             type: Sequelize.TEXT
+        }, 
+        description: {
+            type: Sequelize.STRING
         }
     });
     return attachments;

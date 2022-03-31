@@ -18,7 +18,9 @@ const upload = async(req, res) => {
 
         const meta = await db.attachments.create({
             path: "/files/" + req.file.originalname,
-            EmploymentApplicationId: employmentApplications.id
+             description:req.body.description,
+            EmploymentApplicationId: req.body.userId
+            
         })
         res.status(200).send({
             message: "Uploaded the file successfully: " + req.file.originalname,
