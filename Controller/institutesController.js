@@ -9,29 +9,35 @@ const Sequelize = require("sequelize");
 const db = require("../models/database")
 const fs = require("fs");
 require("dotenv").config();
-
 const slack = require("../support/Slack_API")
-
+const { validationResult } = require('express-validator');
 
 
 //تسجيل حساب جديد لمؤسسات
 exports.newProvider = async(req, res) => {
 
+        const errors = validationResult(req);//التحقق من الصوره وغلاف
+        if (!errors.isEmpty()) 
+        {
+        return res.status(400).json({ errors: errors.array() });
+        }
+
         const Check = await db.institutes.findOne({
             where: {
-                Email: req.body.Email,
-                phone: req.body.phone
+                Email: req.body.Email
             }
         });
         if (Check) {
             res.status(201).json("Email or phone allrady Exits");
         } else {
+            
             const clImg = await cloudinary.v2.uploader
                 .upload(req.body.photo, {
                     public_id: `institutes/${req.body.Email}`,
                 }).catch((err) => {
                     console.warn(err);
-                    return res.status(500).send('تأكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه')
+                    slack.run(`new error ${err.message}`, 'hireme-support'); //send notificions to slack
+                    return res.status(500).send(' 444 تأكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه')
                 });
     
 
@@ -41,12 +47,9 @@ exports.newProvider = async(req, res) => {
                 }).catch((err) =>
                 {
                     console.warn(err);
-                    return res.status(500).send('تأكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه')
+                    return res.status(500).send('تأكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه111111')
                 });
-    
-
-            ///genrate opt 
-            const OTP = Math.floor(Math.random() * (00001 - 11000 + 1) + 9999);
+           
             ///create the user
             const newProvider = await db.institutes.create({
                 CompanyName: req.body.CompanyName,

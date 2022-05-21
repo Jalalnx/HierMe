@@ -9,8 +9,14 @@ router.get('/ping', userController.ping)
 router.post("/login", userController.login)
 router.post("/register", userController.register)
 router.get("/Jobs", userController.getJobs)
+router.get("/app", userController.getMyApplictions)
+router.get("/notifyUser", userController.notifyUser)
+
+
 router.post("/file/upload", controller.upload);
 router.post("/test/upload", controller.upload);
+
+
 // router.get("/files", controller.getListFiles);
 // router.get("/files/:name", controller.download);
 // router.put("/UpdateInfo", auth.isAuthorized, userController.UpdateInfo)

@@ -4,13 +4,15 @@ const cloudinary = require('cloudinary');
 const mailing = require('nodemailer')
 const emailProvider = require('../Services/emailConfing')
 const webpush = require('web-push');
-const Sequelize = require("sequelize");
 const db = require("../models/database")
+const job = require("../models/job");
 const fs = require("fs");
 const upload = require('../Services/uploadMiddleware');
 const path = require('path');
 const Resize = require('../Services/Resize');
-const job = require("../models/job");
+
+const { validationResult } = require('express-validator');
+
 require("dotenv").config();
 const axios = require('axios');
 const config = process.Configuration;
@@ -54,7 +56,7 @@ exports.login = async(req, res) => {
     } else {
         const match = bcrypt.compareSync(req.body.password, user.password); // true
         if (match) {
-            token = jwt.sign({ "id": user.id, "email": user.email }, config.JWT_SECRET_KEY);
+            // token = jwt.sign({ "id": user.id, "email": user.email }, config.JWT_SECRET_KEY);
             // let jwtSecretKey = "secret";
             // let data = {
             //     time: Date(),
@@ -70,7 +72,6 @@ exports.login = async(req, res) => {
             res.status(202).json({
                 message: "acppted",
                 error: false,
-                jwt: token,
                 user: user
             });
 
@@ -138,10 +139,7 @@ exports.register = async(req, res) => {
 exports.getJobs = async(req, res) => {
 
     const jobs = await db.jobs.findAll({
-        where: {
-            status: 0,
-            AprovedByAdmin: 1
-        },
+      
         include: [
             db.institutes
         ],
@@ -159,8 +157,63 @@ exports.getJobs = async(req, res) => {
 
 // exports.UpdateInfo = async(req, res) => {}
 
+exports.getMyApplictions = async(req, res) => {
 
-// exports.UpdateAppliction = async(req, res) => {}
+    const errors = validationResult(req);
+    const id = req.body.userId ||req.params.userId;
+
+    const appllictions =await db.EmploymentApplications.findAll({
+        include : [
+            db.jobs
+        ],
+        where: {
+            userId: id
+        }
+        
+    });
+    if(appllictions){
+         res.status(201).send({
+            masseg: "All appllictions directives",
+            count: appllictions.length,
+            error: false,
+            data: appllictions
+        })
+    
+    }else{
+         res.status(201).send({
+            masseg: "thier is no records yet",
+            error: false,
+        })
+    
+    }
+
+    
+
+
+   
+}
+ exports.notifyUser = async(req, res) => {
+
+  const userID= req.body.userId || req.params.userId;
+
+  const messagegs =await db.notify.findAll({
+    where: {
+        userId : req.body.userId ||1
+    },
+    include : [
+        db.jobs
+    ]
+      
+});
+
+res.status(200).send({
+    masseg: "All appllictions directives",
+    count: messagegs.length,
+    error: false,
+    data: messagegs
+})
+
+ }
 // exports.getMyapplicatinos = async(req, res) => {}
 // exports.Search = async(req, res) => {} res) => {}
 // exports.Search = async(req, res) => {} res) => {}

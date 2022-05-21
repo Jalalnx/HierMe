@@ -17,7 +17,7 @@ const verifyToken = async(req, res, next) => {
         })
         if (!decodedUser) return res.status(401).json({
             success: false,
-            msg: "Invalid Token"
+            msg: "Invalid uder"
         })
         req.user = decoded;
         req.requester_id = decoded.user_id;
@@ -30,3 +30,4 @@ const verifyToken = async(req, res, next) => {
     return next();
 };
 module.exports = verifyToken;
+

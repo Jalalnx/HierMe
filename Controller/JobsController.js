@@ -1,11 +1,12 @@
 const db = require("../models/database");
-
 const slack = require("../support/Slack_API")
+const { validationResult } = require('express-validator');
 
 
 // https: //www.bezkoder.com/node-js-express-sequelize-mysql/
 // Create and Save a new Tutorial
-exports.create = async(req, res) => {
+exports.create =  async(req, res) => {
+        
     const job = await db.jobs.create({
         job_role: req.body.job_role,
         salary_range: req.body.salary_range,
@@ -42,21 +43,26 @@ exports.create = async(req, res) => {
 
     }
 }
-    // Retrieve all Tutorials from the database.
-exports.findAll = async(req, res) => {
+
+
+// Retrieve all Tutorials from the database.
+exports.findAll =  async(req, res) => {
+    
+    // const errors = validationResult(req);
+    //   if (!errors.isEmpty()) 
+    // {
+    //   return res.status(400).json({ errors: errors.array() });
+    // }
+
+const key =  req.params.instituteId ||req.body.instituteId || req.query.instituteId ;
 
     const jobs = await db.jobs.findAll({
         where: {
-            status: 0,
-            AprovedByAdmin: 1
-        },
-        include: [
-            db.institutes
-        ],
-
+            instituteId : 2
+        }
     })
 
-    return res.status(201).send({
+    return res.status(200).send({
         masseg: "All jobs directives",
         count: jobs.length,
         error: false,

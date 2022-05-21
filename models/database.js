@@ -5,6 +5,7 @@ const jobModel = require("./job.js");
 const institutesModel = require("./institutes.js")
 const EmploymentApplicationsModel = require("./EmploymentApplications.model.js")
 const attachmentModel = require("./attachments.model.js")
+const notifyModel = require("./notify.model.js")
 
 
 // https://sequelize.org/master/manual/assocs.html
@@ -20,6 +21,8 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
         idle: dbConfig.pool.idle
     }
 });
+
+
 const db = {};
 
 db.Sequelize = Sequelize;
@@ -29,6 +32,7 @@ db.user = UserModel(sequelize, Sequelize);
 db.institutes = institutesModel(sequelize, Sequelize);
 db.EmploymentApplications = EmploymentApplicationsModel(sequelize, Sequelize);
 db.attachments = attachmentModel(sequelize, Sequelize);
+db.notify = notifyModel(sequelize, Sequelize);
 // https: //www.codementor.io/@mirko0/how-to-use-sequelize-with-node-and-express-i24l67cuz
 
 
@@ -41,10 +45,15 @@ db.attachments.belongsTo(db.user);
 
 
 db.user.hasMany(db.EmploymentApplications, { foreignKey: 'userId' });
+db.jobs.hasMany(db.EmploymentApplications, { foreignKey: 'jobId' });
+
 db.EmploymentApplications.belongsTo(db.user);
 db.EmploymentApplications.belongsTo(db.jobs);
 
-// db.EmploymentApplications.belongsToMany(db.user, { through: db.jobs, unique: false });
+db.notify.belongsTo(db.user);
+db.notify.belongsTo(db.jobs);
+
+//  db.EmploymentApplications.belongsToMany(db.user, { through: db.jobs, unique: false });
 
 
 
