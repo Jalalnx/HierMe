@@ -1,6 +1,6 @@
 const router = require("express").Router()
 const userController = require("../Controller/userController")
-var auth = require('../middelware/auth');
+// var auth = require('../middelware/auth');
 const controller = require("../Controller/file.controller");
 
 
@@ -11,6 +11,7 @@ router.post("/register", userController.register)
 router.get("/Jobs", userController.getJobs)
 router.get("/app", userController.getMyApplictions)
 router.get("/notifyUser", userController.notifyUser)
+router.post("/apply", userController.apply)
 
 
 router.post("/file/upload", controller.upload);

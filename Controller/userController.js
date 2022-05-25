@@ -55,19 +55,19 @@ exports.login = async(req, res) => {
         });
     } else {
         const match = bcrypt.compareSync(req.body.password, user.password); // true
-        if (match) {
+        if (!match) {
             // token = jwt.sign({ "id": user.id, "email": user.email }, config.JWT_SECRET_KEY);
             // let jwtSecretKey = "secret";
             // let data = {
             //     time: Date(),
             //     userId: 12,
             // }
-            const res2 = await axios.post(url, {
-                channel: 'hireme-support',
-                text: `${user.profession} المهنه  ${user.f_name}تسجيل دخول جديد `,
-                username: 'Daroat Jalal',
-                icon_emoji: ':male-technologist:'
-            }, { headers: { authorization: `Bearer ${slackToken}` } });
+            // const res2 = await axios.post(url, {
+            //     channel: 'hireme-support',
+            //     text: `${user.profession} المهنه  ${user.f_name}تسجيل دخول جديد `,
+            //     username: 'Daroat Jalal',
+            //     icon_emoji: ':male-technologist:'
+            // }, { headers: { authorization: `Bearer ${slackToken}` } });
 
             res.status(202).json({
                 message: "acppted",
@@ -89,12 +89,16 @@ exports.register = async(req, res) => {
 
     const Check = await db.user.findOne({
         where: {
-            Email: req.body.Email,
+            Email: req.body.Email
+        }
+    });
+    const Check2 = await db.user.findOne({
+        where: {
             phone: req.body.phone
         }
     });
 
-    if (Check) {
+    if (Check && Check2) {
         res.status(201).json("Email or phone allrady Exits");
     } else {
         const clImg = await cloudinary.v2.uploader
@@ -103,11 +107,11 @@ exports.register = async(req, res) => {
             }).catch((err) => 
             {
                 console.warn(err);
-                return res.status(500).send('تأكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه')
+                return res.status(300).send(`أكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه/${err}`);
             });
 
 
-        ///genrate opt 
+        //genrate opt 
         const OTP = Math.floor(Math.random() * (00001 - 11000 + 1) + 9999);
         ///create the user
         const newuser = await db.user.create({
@@ -194,27 +198,51 @@ exports.getMyApplictions = async(req, res) => {
 }
  exports.notifyUser = async(req, res) => {
 
-  const userID= req.body.userId || req.params.userId;
+        const userID= req.body.userId || req.params.userId;
 
-  const messagegs =await db.notify.findAll({
-    where: {
-        userId : req.body.userId ||1
-    },
-    include : [
-        db.jobs
-    ]
-      
-});
+        const messagegs =await db.notify.findAll({
+            where: {
+                userId :4
+            },
+            include : [
+                db.jobs
+            ]
+            
+        });
 
-res.status(200).send({
-    masseg: "All appllictions directives",
-    count: messagegs.length,
-    error: false,
-    data: messagegs
-})
+        res.status(200).send({
+            masseg: "All appllictions directives",
+            count: messagegs.length,
+            error: false,
+            data: messagegs
+        })
 
  }
-// exports.getMyapplicatinos = async(req, res) => {}
+exports.apply = async(req, res) => {
+
+    const newEmploymentApplications = await db.EmploymentApplications.create({
+        status: 0,
+        userId: req.body.userId,
+        jobId: req.body.jobId,
+        instituteId: req.body.instituteId
+    });
+
+    if(newEmploymentApplications)
+    {
+        res.status(200).send({
+        masseg:" تم التقديم لوظيفه بنجاح",
+        error: false,
+    })
+}else{
+    
+        res.status(200).send({
+        masseg:"فشل التثديم الوظيفه",
+        error: true,
+    })
+
+}
+
+}
 // exports.Search = async(req, res) => {} res) => {}
 // exports.Search = async(req, res) => {} res) => {}
 // exports.Search = async(req, res) => {}

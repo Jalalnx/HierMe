@@ -49,6 +49,7 @@ db.jobs.hasMany(db.EmploymentApplications, { foreignKey: 'jobId' });
 
 db.EmploymentApplications.belongsTo(db.user);
 db.EmploymentApplications.belongsTo(db.jobs);
+db.EmploymentApplications.belongsTo(db.institutes);
 
 db.notify.belongsTo(db.user);
 db.notify.belongsTo(db.jobs);

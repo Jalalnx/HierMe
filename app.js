@@ -12,10 +12,10 @@ const Sequelize = require("sequelize");
 async function neon() {
     const tt = chalkAnimation.neon("All models were synchronized successfully.")
 }
-// async function karaoke() {
-//     const tt = chalkAnimation.neon("have a nice jurny")
-// }
-// db.sequelize.sync();
+async function karaoke() {
+    const tt = chalkAnimation.neon("have a nice jurny")
+}
+// // db.sequelize.sync();
 // db.sequelize.sync({ force: true })
 //     .then(() => {
 //         neon();
@@ -27,7 +27,7 @@ async function neon() {
 //     });
 const app = express();
 var corsOptions = {
-    origin: "http://192.168.8.100"
+    origin: "http://192.168.198.118"
     
 };
 // 192.168.137.1
