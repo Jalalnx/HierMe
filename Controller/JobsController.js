@@ -112,25 +112,58 @@ exports.employmentapplications = async (req, res) => {
 // Find all published Tutorials
 exports.employmentapplicationsStutes = async (req, res) => {
 
+ 
+
+    const EmploymentApplications = await db.EmploymentApplications.findOne({
+        where: {
+            Id: req.body.Id
+        },
+        include : [
+            db.jobs,
+            db.user,
+            db.institutes,
+        ]
+    });
+    
+    let feedback;
+
+    if( req.body.status = 1)
+    feedback = `  تم قبولك في الوظيف ${EmploymentApplications.job.job_role} `;
+    else ( req.body.status = 2 )
+    feedback = `  تم رفضك في الوظيف ${EmploymentApplications.job.job_role}  `;
+
+
+   
     try {
         const result = await db.EmploymentApplications.update(
           { status: req.body.status},
           { where: {   id: req.body.Id     } 
         });
-        handleResult(result)
-    } catch (err) {
-      handleError(err)
-    }
-       if(result)
-       return res.status(200).send({
-        masseg: "تم تحديث حالة الوظيفه",
-        error: false,
-    });
-    else
+        
+        const notify = await db.notify.create({
+            message:feedback ,
+            viewed: req.body.jobId,
+            userId: EmploymentApplications.userId,
+            jobId: EmploymentApplications.jobId
+        });
+
+    if(result)
+       {
+           
     return res.status(200).send({
-        masseg: "حدث خلل اثناء التحديث الرجاء المحاوله ثانيتا  ",
-        error: true,
-    });
+         masseg: "تم تحديث حالة الوظيفه",
+         error: false,
+     });
+    }
+     else
+     return res.status(200).send({
+         masseg: "حدث خلل اثناء التحديث الرجاء المحاوله ثانيتا  ",
+         error: true,
+     });
+    } catch (err) {
+    //   handleError(err)
+    }
+      
     
     }
 // Find all published Tutorials
