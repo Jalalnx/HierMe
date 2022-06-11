@@ -27,7 +27,7 @@ async function karaoke() {
 //     });
 const app = express();
 var corsOptions = {
-    origin: "http://192.168.198.118"
+    origin: "http://192.168.8.102"
     
 };
 // 192.168.137.1
@@ -56,8 +56,8 @@ cloudinary.config({
 
 app.use(bodyParser.json({ limit: '1000mb' }))
 app.use(bodyParser.urlencoded({
-        limit: '50mb',
-        extended: false,
+        limit: '5mb',
+        extended: true,
     }))
 
     // parse requests of content-type - application/json
@@ -81,6 +81,14 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
 
+app.use((err, req, res, next) => {
+    // console.log(err);
+    err.statusCode = err.statusCode || 500;
+    err.message = err.message || "Internal Server Error";
+    res.status(err.statusCode).json({
+      message: err.message,
+    });
+});
 
 app.use("/institutes", OrgRouter)
 app.use("/user", userRoutes);

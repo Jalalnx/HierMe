@@ -48,17 +48,11 @@ exports.create =  async(req, res) => {
 // Retrieve all Tutorials from the database.
 exports.findAll =  async(req, res) => {
     
-    // const errors = validationResult(req);
-    //   if (!errors.isEmpty()) 
-    // {
-    //   return res.status(400).json({ errors: errors.array() });
-    // }
-
-const key =  req.params.instituteId ||req.body.instituteId || req.query.instituteId ;
+   const key = req.body.instituteId;
 
     const jobs = await db.jobs.findAll({
         where: {
-            instituteId : 2
+            instituteId : key
         }
     })
 
@@ -79,13 +73,66 @@ exports.update = (req, res) => {
 
 };
 // Delete a Tutorial with the specified id in the request
-exports.delete = (req, res) => {
+exports.delete = async (req, res) => {
+
+    await db.jobs.destroy({
+        where: {
+           id: req.body.id
+        }
+      });
+
+      return res.status(200).send({
+        masseg: "تم مسح الوظيفه",
+        error: false,
+    })
 
 };
 // Delete all Tutorials from the database.
-exports.deleteAll = (req, res) => {
+exports.employmentapplications = async (req, res) => {
+
+    const EmploymentApplications = await db.EmploymentApplications.findAll({
+        where: {
+            instituteId : req.body.instituteId
+        },
+        include : [
+            db.jobs,
+            db.user,
+        ]
+    })
+
+    return res.status(200).send({
+        masseg: "All jobs directives",
+        count: EmploymentApplications.length,
+        error: false,
+        data: EmploymentApplications
+    })
+
 
 };
+// Find all published Tutorials
+exports.employmentapplicationsStutes = async (req, res) => {
+
+    try {
+        const result = await db.EmploymentApplications.update(
+          { status: req.body.status},
+          { where: {   id: req.body.Id     } 
+        });
+        handleResult(result)
+    } catch (err) {
+      handleError(err)
+    }
+       if(result)
+       return res.status(200).send({
+        masseg: "تم تحديث حالة الوظيفه",
+        error: false,
+    });
+    else
+    return res.status(200).send({
+        masseg: "حدث خلل اثناء التحديث الرجاء المحاوله ثانيتا  ",
+        error: true,
+    });
+    
+    }
 // Find all published Tutorials
 exports.findAllPublished = (req, res) => {
 

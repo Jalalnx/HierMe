@@ -90,7 +90,7 @@ exports.login = async(req, res) => {
         });
     } else {
         const match = bcrypt.compareSync(req.body.password, institutes.password); // true
-        if (match) {
+        if (!match) {
             // token = jwt.sign({ "id": user.id, "email": user.email, "first_name": user.first_name }, process.env.SECRET);
             let jwtSecretKey = "secret";
             let data = {
@@ -98,21 +98,18 @@ exports.login = async(req, res) => {
                 userId: 12,
             }
 
-            const token = jwt.sign(data,
-                jwtSecretKey);
+            // const token = jwt.sign(data,
+            //     jwtSecretKey);
 
 
-            slack.run(`${ institutes.CompanyName }
-                        المهنه ${ institutes.workFiled }
-                        تسجيل دخول جديد `, 'hireme-support', 'Login_Watcher'); //send notificions to slack
+            //  await slack.run(`${ institutes.CompanyName }
+            //             المهنه ${ institutes.workFiled }
+            //             تسجيل دخول جديد `, 'hireme-support', 'Login_Watcher'); //send notificions to slack
 
-            Object.assign(institutes, {
-                jwt: token
-            })
+        
             res.status(202).json({
                 message: "acppted",
                 error: false,
-                jwt: token,
                 institutes
 
             });

@@ -10,12 +10,11 @@ const fs = require("fs");
 const upload = require('../Services/uploadMiddleware');
 const path = require('path');
 const Resize = require('../Services/Resize');
-
 const { validationResult } = require('express-validator');
-
 require("dotenv").config();
 const axios = require('axios');
 const config = process.Configuration;
+
 
 const slackToken = 'xoxb-3225785419078-3286188532210-jS82ravJ0axw9vLwhnmCUkzI'; //Bot User OAuth Token
 const url = 'https://slack.com/api/chat.postMessage';
@@ -24,7 +23,7 @@ const url = 'https://slack.com/api/chat.postMessage';
 exports.ping = async(req, res) => {
         console.log("app ping in port 300");
 
-        const res2 = await axios.post(url, {
+         axios.post(url, {
             channel: 'hireme-support',
             text: 'Hire me suport is up to work',
             username: 'Test App',
@@ -35,7 +34,6 @@ exports.ping = async(req, res) => {
         return res.status(200).json({
             'status': 'done',
             'message': 'Server in up do work',
-            "res": res2.data
         });
 
 
@@ -43,40 +41,36 @@ exports.ping = async(req, res) => {
     //login end point
 exports.login = async(req, res) => {
     //check if the user if exiting
+    console.log(req.body.Email)
     const user = await db.user.findOne({
         where: {
             Email: req.body.Email
         }
     });
     if (!user) {
-        res.status(401).json({
-            message: "Auth failed!! either the account does't exist or you entered a wrong account",
+        res.status(200).json({
+            message: "الحساب غير موجود تاكد من بياناتك",
             error: true
         });
     } else {
-        const match = bcrypt.compareSync(req.body.password, user.password); // true
-        if (!match) {
-            // token = jwt.sign({ "id": user.id, "email": user.email }, config.JWT_SECRET_KEY);
-            // let jwtSecretKey = "secret";
-            // let data = {
-            //     time: Date(),
-            //     userId: 12,
-            // }
-            // const res2 = await axios.post(url, {
-            //     channel: 'hireme-support',
-            //     text: `${user.profession} المهنه  ${user.f_name}تسجيل دخول جديد `,
-            //     username: 'Daroat Jalal',
-            //     icon_emoji: ':male-technologist:'
-            // }, { headers: { authorization: `Bearer ${slackToken}` } });
+        const match =  bcrypt.compareSync(req.body.password, user.password); // true
+        if (match) {
 
-            res.status(202).json({
+              axios.post(url, {
+                channel: 'hireme-support',
+                text: ` New login prosess user => ${user.f_name} , profession => ${user.profession} `,
+                username: 'UserWatcher',
+                icon_emoji: ':male-technologist:'
+            }, { headers: { authorization: `Bearer ${slackToken}` } });
+
+            res.status(200).json({
                 message: "acppted",
                 error: false,
                 user: user
             });
 
         } else {
-            res.status(401).json({
+            res.status(200).json({
                 message: "Wrong password",
                 error: true,
             });
@@ -98,16 +92,20 @@ exports.register = async(req, res) => {
         }
     });
 
-    if (Check && Check2) {
+    if (Check ||  Check2) {
         res.status(201).json("Email or phone allrady Exits");
     } else {
-        const clImg = await cloudinary.v2.uploader
-            .upload(req.body.photo, {
-                public_id: `user/${req.body.Email}`,
+
+
+        const clImg = cloudinary.v2.uploader.upload(req.body.photo, {
+                 public_id: `user/${req.body.Email}`,
             }).catch((err) => 
             {
                 console.warn(err);
-                return res.status(300).send(`أكد من ان جهازك متصل بأنترنت او قم بمراجعة مزود الخدمه/${err}`);
+                return res.status(200).send({
+                    masseg: "مشكله في الاتصال",
+                    error: true,
+                });
             });
 
 
@@ -130,8 +128,15 @@ exports.register = async(req, res) => {
         });
         if (!newuser) {
             return res.status(205).send('error in creating user')
-        } else {
-            return res.status(201).send({ masseg: "oh", error: false, Newuser: newuser })
+        } else {            
+             axios.post(url, {
+                channel: 'hireme-support',
+                text: ` New user => ${newuser.f_name +" " + newuser.l_name} , profession => ${newuser.profession} `,
+                username: 'UserWatcher',
+                icon_emoji: ':male-technologist:'
+            }, { headers: { authorization: `Bearer ${slackToken}` } });
+
+            return res.status(201).send({ masseg: "oh", error: false, Newuser: newuser });
 
         }
     }
@@ -150,59 +155,73 @@ exports.getJobs = async(req, res) => {
 
     })
 
-    return res.status(201).send({
-        masseg: "All jobs directives",
-        count: jobs.length,
-        error: false,
-        data: jobs
-    })
+    if(jobs){
+        return res.status(200).send({
+            masseg: "All jobs directives",
+            count: jobs.length,
+            error: false,
+            data: jobs
+        })
+    }else{
+        return res.status(201).send({
+            masseg: "no job list for now",
+            error: true,
+        })
+    }
+    
 }
 
 
-// exports.UpdateInfo = async(req, res) => {}
+
 
 exports.getMyApplictions = async(req, res) => {
 
-    const errors = validationResult(req);
-    const id = req.body.userId ||req.params.userId;
-
-    const appllictions =await db.EmploymentApplications.findAll({
-        include : [
+    const id = await req.body.userId  ;
+    console.log(id);
+    const appllictions = await db.EmploymentApplications.findAll({
+        where:{
+            userId:id
+        },
+        include:[
             db.jobs
-        ],
-        where: {
-            userId: id
-        }
-        
-    });
+        ]
+    }).catch((err) => 
+    {
+        return res.status(200)
+        .send({
+                masseg:`مشكلة  في جلب البيانات الخاصه بمستخم ${err}`,
+                error: true
+            })
+    })
+
     if(appllictions){
-         res.status(201).send({
+
+         res.status(200)
+         .send({
             masseg: "All appllictions directives",
             count: appllictions.length,
             error: false,
             data: appllictions
-        })
+           });
     
     }else{
-         res.status(201).send({
+         res.status(200)
+         .send({
             masseg: "thier is no records yet",
-            error: false,
-        })
+            error: true,
+            });
     
-    }
-
-    
-
-
-   
+    }  
 }
+
+
  exports.notifyUser = async(req, res) => {
 
         const userID= req.body.userId || req.params.userId;
 
         const messagegs =await db.notify.findAll({
             where: {
-                userId :4
+                userId :userID
             },
             include : [
                 db.jobs
@@ -219,16 +238,32 @@ exports.getMyApplictions = async(req, res) => {
 
  }
 exports.apply = async(req, res) => {
-
     const newEmploymentApplications = await db.EmploymentApplications.create({
         status: 0,
         userId: req.body.userId,
         jobId: req.body.jobId,
         instituteId: req.body.instituteId
     });
-
     if(newEmploymentApplications)
     {
+
+        const user = await db.user.findOne({
+            where: {
+                id: req.body.userId
+            }
+        });
+        const job = await db.jobs.findOne({
+            where: {
+                id: req.body.jobId
+            }
+        });
+          axios.post(url, {
+            channel: 'hireme-support',
+            text: ` New  Employment Applications  user => ${user.f_name } ${user.l_name} , job => ${job.job_role} `,
+            username: 'JobWatcher',
+            icon_emoji: ':male-technologist:'
+        }, { headers: { authorization: `Bearer ${slackToken}` } });
+
         res.status(200).send({
         masseg:" تم التقديم لوظيفه بنجاح",
         error: false,
@@ -243,6 +278,3 @@ exports.apply = async(req, res) => {
 }
 
 }
-// exports.Search = async(req, res) => {} res) => {}
-// exports.Search = async(req, res) => {} res) => {}
-// exports.Search = async(req, res) => {}

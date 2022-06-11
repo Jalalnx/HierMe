@@ -2,14 +2,13 @@ const router = require("express").Router()
 const userController = require("../Controller/userController")
 // var auth = require('../middelware/auth');
 const controller = require("../Controller/file.controller");
-
-
+const { app } = require('../middelware/Validation')
 
 router.get('/ping', userController.ping)
 router.post("/login", userController.login)
 router.post("/register", userController.register)
 router.get("/Jobs", userController.getJobs)
-router.get("/app", userController.getMyApplictions)
+router.post("/app", app,userController.getMyApplictions)
 router.get("/notifyUser", userController.notifyUser)
 router.post("/apply", userController.apply)
 
