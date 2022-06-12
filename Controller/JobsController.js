@@ -121,16 +121,16 @@ exports.employmentapplicationsStutes = async (req, res) => {
         include : [
             db.jobs,
             db.user,
-            db.institutes,
+            db.institutes
         ]
     });
-    
+
     let feedback;
 
-    if( req.body.status = 1)
-    feedback = `  تم قبولك في الوظيف ${EmploymentApplications.job.job_role} `;
-    else ( req.body.status = 2 )
-    feedback = `  تم رفضك في الوظيف ${EmploymentApplications.job.job_role}  `;
+    if( req.body.status === '1')
+    feedback = `   ${EmploymentApplications.institute.CompanyName}  تم قبولك في الوظيف ${EmploymentApplications.job.job_role}    `;
+    else if( req.body.status === '2' )
+    feedback = `    ${EmploymentApplications.institute.CompanyName}  تم رفضك في الوظيف ${EmploymentApplications.job.job_role}   `;
 
 
    
@@ -153,12 +153,14 @@ exports.employmentapplicationsStutes = async (req, res) => {
     return res.status(200).send({
          masseg: "تم تحديث حالة الوظيفه",
          error: false,
+         feedback,
      });
     }
      else
      return res.status(200).send({
          masseg: "حدث خلل اثناء التحديث الرجاء المحاوله ثانيتا  ",
          error: true,
+         feedback,
      });
     } catch (err) {
     //   handleError(err)

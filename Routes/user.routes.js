@@ -9,7 +9,7 @@ router.post("/login", userController.login)
 router.post("/register", userController.register)
 router.get("/Jobs", userController.getJobs)
 router.post("/app", app,userController.getMyApplictions)
-router.get("/notifyUser", userController.notifyUser)
+router.post("/notifyUser", userController.notifyUser)
 router.post("/apply", userController.apply)
 
 

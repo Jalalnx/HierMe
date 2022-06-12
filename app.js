@@ -27,7 +27,7 @@ async function karaoke() {
 //     });
 const app = express();
 var corsOptions = {
-    origin: "http://192.168.8.102"
+    origin: "http://192.168.8.100"
     
 };
 // 192.168.137.1
